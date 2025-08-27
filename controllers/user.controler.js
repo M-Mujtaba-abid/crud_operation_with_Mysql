@@ -3,7 +3,7 @@ import { comparePassword, hashPassword  } from "../utils/Encryption.js";
 import ApiResponse from "../utils/apiResponse.js";
 import ApiError from "../utils/apiError.js";
 import asyncHandler from "../utils/asyncHandler.js";
-
+import jwt from "jsonwebtoken"
 // Register user
 export const registerUser = asyncHandler(async (req, res) => {
   const { username, email, password } = req.body;
@@ -35,25 +35,30 @@ export const registerUser = asyncHandler(async (req, res) => {
 export const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
-  // check email provided hai ya nahi
-  if (!email || !password) {
-    throw new ApiError(400, "Email and Password are required");
-  }
-
-  // user find karo
+  // check user exists?
   const user = await User.findOne({ where: { email } });
   if (!user) {
     throw new ApiError(404, "User not found!");
   }
 
-  // password compare karo
-  const isMatch = await comparePassword(password, user.password);
-  if (!isMatch) {
+  // compare password
+  const isPasswordValid = await comparePassword(password, user.password);
+  if (!isPasswordValid) {
     throw new ApiError(401, "Invalid credentials!");
   }
 
-  // (yahan pe future me JWT generate karke bhejna ho to wo bhi kar sakte ho)
-  return res
-    .status(200)
-    .json(new ApiResponse(200, user, "Login successful"));
+  // generate token with payload (id, email etc)
+  const payload = { id: user.id, email: user.email };
+  const token = jwt.sign(payload, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRES_IN,
+  });
+
+  // response with token
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      { user, token },
+      "Login successful"
+    )
+  );
 });
