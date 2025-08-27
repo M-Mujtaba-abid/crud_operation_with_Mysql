@@ -53,12 +53,32 @@ export const loginUser = asyncHandler(async (req, res) => {
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 
+ // cookie options
+  const options = {
+    expires: new Date(Date.now() + process.env.COOKIE_EXPIRE * 24 * 60 * 60 * 1000), // 1 day
+    httpOnly: true, // frontend JS cannot access
+    secure: process.env.NODE_ENV === "production", // only HTTPS in prod
+    sameSite: "strict",
+  };
+
   // response with token
   return res.status(200).json(
     new ApiResponse(
       200,
-      { user, token },
+      { user, options },
       "Login successful"
     )
   );
+});
+
+
+
+const LogoutUser = asyncHandler(async (req, res) => {
+  res
+    .cookie("token", null, {
+      expires: new Date(Date.now()),
+      httpOnly: true,
+    })
+    .status(200)
+    .json(new ApiResponse(200, {}, "Logout Successful"));
 });

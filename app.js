@@ -1,5 +1,6 @@
 import express from "express"
 import userRoute from "./routes/user.route.js" 
+import producRoute from "./routes/product.route.js" 
 const app=express()
 
 app.use(express.json()); // to parse JSON request body
@@ -11,6 +12,7 @@ app.get("/", (req, res) => {
 
 
 app.use("/users", userRoute)
+app.use("/product", producRoute)
 
 
 
