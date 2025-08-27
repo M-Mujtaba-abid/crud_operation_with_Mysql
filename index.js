@@ -9,9 +9,9 @@ const PORT = process.env.PORT || 7000;
 await connectDB();
 
 // Sync Tables
-// sequelize.sync({ alter: true })
-//   .then(() => console.log("✅ Tables synced"))
-//   .catch((err) => console.error("❌ Error syncing tables:", err));
+sequelize.sync({ alter: true })
+  .then(() => console.log("✅ Tables synced"))
+  .catch((err) => console.error("❌ Error syncing tables:", err));
 
 
 app.listen(PORT, () => {

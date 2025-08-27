@@ -35,42 +35,34 @@ export const registerUser = asyncHandler(async (req, res) => {
 export const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
-  // check user exists?
+  // check user exists
   const user = await User.findOne({ where: { email } });
-  if (!user) {
-    throw new ApiError(404, "User not found!");
-  }
+  if (!user) throw new ApiError(404, "User not found!");
 
   // compare password
   const isPasswordValid = await comparePassword(password, user.password);
-  if (!isPasswordValid) {
-    throw new ApiError(401, "Invalid credentials!");
-  }
+  if (!isPasswordValid) throw new ApiError(401, "Invalid credentials!");
 
-  // generate token with payload (id, email etc)
+  // generate JWT
   const payload = { id: user.id, email: user.email };
   const token = jwt.sign(payload, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 
- // cookie options
+  // cookie options
   const options = {
-    expires: new Date(Date.now() + process.env.COOKIE_EXPIRE * 24 * 60 * 60 * 1000), // 1 day
+    expires: new Date(Date.now() + Number(process.env.COOKIE_EXPIRE) * 24 * 60 * 60 * 1000), // convert days to ms
     httpOnly: true, // frontend JS cannot access
-    secure: process.env.NODE_ENV === "production", // only HTTPS in prod
+    secure: false, // dev me false rakho, prod me true
     sameSite: "strict",
   };
 
-  // response with token
-  return res.status(200).json(
-    new ApiResponse(
-      200,
-      { user, options },
-      "Login successful"
-    )
-  );
+  // set cookie and send response
+  return res
+    .cookie("token", token, options)   // <-- important
+    .status(200)
+    .json(new ApiResponse(200, { user ,token }, "Login successful"));
 });
-
 
 
 const LogoutUser = asyncHandler(async (req, res) => {
