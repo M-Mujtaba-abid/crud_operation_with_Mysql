@@ -6,6 +6,7 @@ export const registerValidation = (req, res, next) => {
     username: Joi.string().min(2).max(50).required(),
     email: Joi.string().email().required(),
     password: Joi.string().min(6).required(),
+    userRole: Joi.string().min(2).max(50).required(),
   });
 
   const { error } = schema.validate(req.body, { abortEarly: false });

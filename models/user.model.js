@@ -19,6 +19,10 @@ const User = sequelize.define("User", {
   password: {
     type: DataTypes.STRING(100),
     allowNull: false
+  },
+  userRole: {
+    type: DataTypes.STRING(100),
+    allowNull: false
   }
 }, {
   timestamps: true,  // createdAt & updatedAt

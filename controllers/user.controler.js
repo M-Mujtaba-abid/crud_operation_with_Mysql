@@ -6,7 +6,7 @@ import asyncHandler from "../utils/asyncHandler.js";
 import jwt from "jsonwebtoken"
 // Register user
 export const registerUser = asyncHandler(async (req, res) => {
-  const { username, email, password } = req.body;
+  const { username, email, password , userRole} = req.body;
 
   // check email exists?
   const existingUser = await User.findOne({ where: { email } });
@@ -21,6 +21,7 @@ export const registerUser = asyncHandler(async (req, res) => {
   const user = await User.create({
     username,
     email,
+    userRole,
     password: hashedPass,
   });
 
